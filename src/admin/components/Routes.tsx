@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState, useEffect } from 'react';
 import {
   Route, Switch, withRouter, Redirect,
 } from 'react-router-dom';
+import { CompatRoute } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './utilities/Auth';
 import { useConfig } from './utilities/Config';
@@ -80,12 +81,12 @@ const Routes = () => {
           if (initialized === false) {
             return (
               <Switch>
-                <Route path={`${match.url}/create-first-user`}>
+                <CompatRoute path={`${match.url}/create-first-user`}>
                   <CreateFirstUser setInitialized={setInitialized} />
-                </Route>
-                <Route>
+                </CompatRoute>
+                <CompatRoute>
                   <Redirect to={`${match.url}/create-first-user`} />
-                </Route>
+                </CompatRoute>
               </Switch>
             );
           }
@@ -98,7 +99,7 @@ const Routes = () => {
             return (
               <Switch>
                 {Array.isArray(customRoutes) && customRoutes.map(({ path, Component, strict, exact, sensitive }) => (
-                  <Route
+                  <CompatRoute
                     key={`${match.url}${path}`}
                     path={`${match.url}${path}`}
                     strict={strict}
@@ -109,41 +110,41 @@ const Routes = () => {
                       user={user}
                       canAccessAdmin={canAccessAdmin}
                     />
-                  </Route>
+                  </CompatRoute>
                 ))}
 
-                <Route path={`${match.url}/login`}>
+                <CompatRoute path={`${match.url}/login`}>
                   <Login />
-                </Route>
-                <Route path={`${match.url}${logoutRoute}`}>
+                </CompatRoute>
+                <CompatRoute path={`${match.url}${logoutRoute}`}>
                   <Logout />
-                </Route>
-                <Route path={`${match.url}${logoutInactivityRoute}`}>
+                </CompatRoute>
+                <CompatRoute path={`${match.url}${logoutInactivityRoute}`}>
                   <Logout inactivity />
-                </Route>
+                </CompatRoute>
 
                 {!userCollection.auth.disableLocalStrategy && (
-                  <Route path={`${match.url}/forgot`}>
+                  <CompatRoute path={`${match.url}/forgot`}>
                     <ForgotPassword />
-                  </Route>
+                  </CompatRoute>
                 )}
 
                 {!userCollection.auth.disableLocalStrategy && (
-                  <Route path={`${match.url}/reset/:token`}>
+                  <CompatRoute path={`${match.url}/reset/:token`}>
                     <ResetPassword />
-                  </Route>
+                  </CompatRoute>
                 )}
 
                 {collections.map((collection) => {
                   if (collection?.auth?.verify && !collection.auth.disableLocalStrategy) {
                     return (
-                      <Route
+                      <CompatRoute
                         key={`${collection.slug}-verify`}
                         path={`${match.url}/${collection.slug}/verify/:token`}
                         exact
                       >
                         <Verify collection={collection} />
-                      </Route>
+                      </CompatRoute>
                     );
                   }
                   return null;
@@ -156,26 +157,26 @@ const Routes = () => {
                         return (
                           <DefaultTemplate>
                             <Switch>
-                              <Route
+                              <CompatRoute
                                 path={`${match.url}/`}
                                 exact
                               >
                                 <Dashboard />
-                              </Route>
+                              </CompatRoute>
 
-                              <Route path={`${match.url}/account`}>
+                              <CompatRoute path={`${match.url}/account`}>
                                 <DocumentInfoProvider
                                   collection={collections.find(({ slug }) => slug === userSlug)}
                                   id={user.id}
                                 >
                                   <Account />
                                 </DocumentInfoProvider>
-                              </Route>
+                              </CompatRoute>
 
                               {collections.reduce((collectionRoutes, collection) => {
                                 const routesToReturn = [
                                   ...collectionRoutes,
-                                  <Route
+                                  <CompatRoute
                                     key={`${collection.slug}-list`}
                                     path={`${match.url}/collections/${collection.slug}`}
                                     exact
@@ -192,7 +193,7 @@ const Routes = () => {
                                       return <Unauthorized />;
                                     }}
                                   />,
-                                  <Route
+                                  <CompatRoute
                                     key={`${collection.slug}-create`}
                                     path={`${match.url}/collections/${collection.slug}/create`}
                                     exact
@@ -211,7 +212,7 @@ const Routes = () => {
                                       return <Unauthorized />;
                                     }}
                                   />,
-                                  <Route
+                                  <CompatRoute
                                     key={`${collection.slug}-edit`}
                                     path={`${match.url}/collections/${collection.slug}/:id`}
                                     exact
@@ -240,7 +241,7 @@ const Routes = () => {
 
                                 if (collection.versions) {
                                   routesToReturn.push(
-                                    <Route
+                                    <CompatRoute
                                       key={`${collection.slug}-versions`}
                                       path={`${match.url}/collections/${collection.slug}/:id/versions`}
                                       exact
@@ -260,7 +261,7 @@ const Routes = () => {
                                   );
 
                                   routesToReturn.push(
-                                    <Route
+                                    <CompatRoute
                                       key={`${collection.slug}-view-version`}
                                       path={`${match.url}/collections/${collection.slug}/:id/versions/:versionID`}
                                       exact
@@ -286,7 +287,7 @@ const Routes = () => {
                               {globals && globals.reduce((globalRoutes, global) => {
                                 const routesToReturn = [
                                   ...globalRoutes,
-                                  <Route
+                                  <CompatRoute
                                     key={`${global.slug}`}
                                     path={`${match.url}/globals/${global.slug}`}
                                     exact
@@ -312,7 +313,7 @@ const Routes = () => {
 
                                 if (global.versions) {
                                   routesToReturn.push(
-                                    <Route
+                                    <CompatRoute
                                       key={`${global.slug}-versions`}
                                       path={`${match.url}/globals/${global.slug}/versions`}
                                       exact
@@ -331,7 +332,7 @@ const Routes = () => {
                                     />,
                                   );
                                   routesToReturn.push(
-                                    <Route
+                                    <CompatRoute
                                       key={`${global.slug}-view-version`}
                                       path={`${match.url}/globals/${global.slug}/versions/:versionID`}
                                       exact
@@ -353,9 +354,9 @@ const Routes = () => {
                                 return routesToReturn;
                               }, [])}
 
-                              <Route path={`${match.url}*`}>
+                              <CompatRoute path={`${match.url}*`}>
                                 <NotFound />
-                              </Route>
+                              </CompatRoute>
                             </Switch>
                           </DefaultTemplate>
                         );
@@ -371,9 +372,9 @@ const Routes = () => {
                     return <Redirect to={`${match.url}/login`} />;
                   }}
                 />
-                <Route path={`${match.url}*`}>
+                <CompatRoute path={`${match.url}*`}>
                   <NotFound />
-                </Route>
+                </CompatRoute>
               </Switch>
             );
           }
