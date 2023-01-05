@@ -4,6 +4,7 @@ import config from 'payload-config';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ScrollInfoProvider } from '@faceless-ui/scroll-info';
 import { WindowInfoProvider } from '@faceless-ui/window-info';
 import { ModalProvider, ModalContainer } from '@faceless-ui/modal';
@@ -34,28 +35,30 @@ const Index = () => (
       >
         <ScrollInfoProvider>
           <Router>
-            <ModalProvider
-              classPrefix="payload"
-              zIndex="var(--z-modal)"
-              transTime={0}
-            >
-              <AuthProvider>
-                <PreferencesProvider>
-                  <ThemeProvider>
-                    <SearchParamsProvider>
-                      <LocaleProvider>
-                        <StepNavProvider>
-                          <CustomProvider>
-                            <Routes />
-                          </CustomProvider>
-                        </StepNavProvider>
-                      </LocaleProvider>
-                    </SearchParamsProvider>
-                  </ThemeProvider>
-                  <ModalContainer />
-                </PreferencesProvider>
-              </AuthProvider>
-            </ModalProvider>
+            <CompatRouter>
+              <ModalProvider
+                classPrefix="payload"
+                zIndex="var(--z-modal)"
+                transTime={0}
+              >
+                <AuthProvider>
+                  <PreferencesProvider>
+                    <ThemeProvider>
+                      <SearchParamsProvider>
+                        <LocaleProvider>
+                          <StepNavProvider>
+                            <CustomProvider>
+                              <Routes />
+                            </CustomProvider>
+                          </StepNavProvider>
+                        </LocaleProvider>
+                      </SearchParamsProvider>
+                    </ThemeProvider>
+                    <ModalContainer />
+                  </PreferencesProvider>
+                </AuthProvider>
+              </ModalProvider>
+            </CompatRouter>
           </Router>
         </ScrollInfoProvider>
       </WindowInfoProvider>
