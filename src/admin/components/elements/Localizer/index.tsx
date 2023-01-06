@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-v5-compat';
 import qs from 'qs';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';

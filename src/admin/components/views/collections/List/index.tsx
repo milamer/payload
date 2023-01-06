@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom-v5-compat';
 import queryString from 'qs';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../../utilities/Config';
@@ -46,7 +46,8 @@ const ListView: React.FC<ListIndexProps> = (props) => {
   const { setStepNav } = useStepNav();
   const { getPreference, setPreference } = usePreferences();
   const { page, sort, limit, where } = useSearchParams();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation('general');
 
   const [fetchURL, setFetchURL] = useState<string>('');
@@ -109,7 +110,7 @@ const ListView: React.FC<ListIndexProps> = (props) => {
         setTableColumns(buildColumns({ collection, columns: currentPreferences?.columns, t }));
       }
 
-      const params = queryString.parse(history.location.search, { ignoreQueryPrefix: true, depth: 0 });
+      const params = queryString.parse(location.search, { ignoreQueryPrefix: true, depth: 0 });
 
       const search = {
         ...params,
@@ -120,12 +121,12 @@ const ListView: React.FC<ListIndexProps> = (props) => {
       const newSearchQuery = queryString.stringify(search, { addQueryPrefix: true });
 
       if (newSearchQuery.length > 1) {
-        history.replace({
+        navigate({
           search: newSearchQuery,
-        });
+        }, { replace: true });
       }
     })();
-  }, [collection, getPreference, preferenceKey, history, t]);
+  }, [collection, navigate, getPreference, preferenceKey, location.search, t]);
 
   // /////////////////////////////////////
   // When any preference-enabled values are updated,

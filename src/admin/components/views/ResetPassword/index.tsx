@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom-v5-compat';
 import { Trans, useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
 import { useAuth } from '../../utilities/Auth';
@@ -21,14 +21,14 @@ const ResetPassword: React.FC = () => {
   const config = useConfig();
   const { admin: { user: userSlug, logoutRoute }, serverURL, routes: { admin, api } } = config;
   const { token } = useParams<{ token?: string }>();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { user, setToken } = useAuth();
   const { t } = useTranslation('authentication');
 
   const onSuccess = (data) => {
     if (data.token) {
       setToken(data.token);
-      history.push(`${admin}`);
+      navigate(`${admin}`);
     }
   };
 

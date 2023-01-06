@@ -1,6 +1,6 @@
 import React, { useState, useReducer } from 'react';
 import queryString from 'qs';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { Props } from './types';
 import useThrottledEffect from '../../../hooks/useThrottledEffect';
@@ -50,7 +50,8 @@ const WhereBuilder: React.FC<Props> = (props) => {
     } = {},
   } = props;
 
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const params = useSearchParams();
   const { t, i18n } = useTranslation('general');
 
@@ -65,7 +66,7 @@ const WhereBuilder: React.FC<Props> = (props) => {
   const [reducedFields] = useState(() => reduceFields(collection.fields, i18n));
 
   useThrottledEffect(() => {
-    const currentParams = queryString.parse(history.location.search, { ignoreQueryPrefix: true, depth: 10 }) as { where: Where };
+    const currentParams = queryString.parse(location.search, { ignoreQueryPrefix: true, depth: 10 }) as { where: Where };
 
     const paramsToKeep = typeof currentParams?.where === 'object' && 'or' in currentParams.where ? currentParams.where.or.reduce((keptParams, param) => {
       const newParam = { ...param };
@@ -92,13 +93,13 @@ const WhereBuilder: React.FC<Props> = (props) => {
     const hasNewWhereConditions = conditions.length > 0;
 
     if (modifySearchQuery && ((hasExistingConditions && !hasNewWhereConditions) || hasNewWhereConditions)) {
-      history.replace({
+      navigate({
         search: queryString.stringify({
           ...currentParams,
           page: 1,
           where: newWhereQuery,
         }, { addQueryPrefix: true }),
-      });
+      }, { replace: true });
     }
   }, 500, [conditions, modifySearchQuery, handleChange]);
 

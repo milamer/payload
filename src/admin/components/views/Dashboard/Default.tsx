@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
 
@@ -22,7 +22,7 @@ const Dashboard: React.FC<Props> = (props) => {
     permissions,
   } = props;
 
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const { i18n } = useTranslation('general');
 
   const {
@@ -78,14 +78,14 @@ const Dashboard: React.FC<Props> = (props) => {
 
                   if (type === EntityType.collection) {
                     title = getTranslation(entity.labels.plural, i18n);
-                    onClick = () => push({ pathname: `${admin}/collections/${entity.slug}` });
+                    onClick = () => navigate({ pathname: `${admin}/collections/${entity.slug}` });
                     createHREF = `${admin}/collections/${entity.slug}/create`;
                     hasCreatePermission = permissions?.collections?.[entity.slug]?.create?.permission;
                   }
 
                   if (type === EntityType.global) {
                     title = getTranslation(entity.label, i18n);
-                    onClick = () => push({ pathname: `${admin}/globals/${entity.slug}` });
+                    onClick = () => navigate({ pathname: `${admin}/globals/${entity.slug}` });
                   }
 
                   return (

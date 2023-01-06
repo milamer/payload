@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { useModal, Modal } from '@faceless-ui/modal';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
@@ -15,13 +15,13 @@ const modalSlug = 'stay-logged-in';
 
 const StayLoggedInModal: React.FC<Props> = (props) => {
   const { refreshCookie } = props;
-  const history = useHistory();
+  const navigate = useNavigate();
   const config = useConfig();
   const {
     routes: { admin },
     admin: {
-      logoutRoute
-    }
+      logoutRoute,
+    },
   } = config;
   const { toggleModal } = useModal();
   const { t } = useTranslation('authentication');
@@ -39,7 +39,7 @@ const StayLoggedInModal: React.FC<Props> = (props) => {
             buttonStyle="secondary"
             onClick={() => {
               toggleModal(modalSlug);
-              history.push(`${admin}${logoutRoute}`);
+              navigate(`${admin}${logoutRoute}`);
             }}
           >
             {t('logOut')}

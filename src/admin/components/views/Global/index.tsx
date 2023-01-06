@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
 import { useAuth } from '../../utilities/Auth';
@@ -17,7 +17,7 @@ import { Fields } from '../../forms/Form/types';
 import { usePreferences } from '../../utilities/Preferences';
 
 const GlobalView: React.FC<IndexProps> = (props) => {
-  const { state: locationState } = useLocation<{data?: Record<string, unknown>}>();
+  const { state: locationState } = useLocation();
   const locale = useLocale();
   const { setStepNav } = useStepNav();
   const { user } = useAuth();
@@ -62,7 +62,7 @@ const GlobalView: React.FC<IndexProps> = (props) => {
     { initialParams: { 'fallback-locale': 'null', depth: 0, draft: 'true' } },
   );
 
-  const dataToRender = locationState?.data || data;
+  const dataToRender: Record<string, string> = locationState?.data || data;
 
   useEffect(() => {
     const nav = [{

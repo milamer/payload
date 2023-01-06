@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useParams } from 'react-router-dom-v5-compat';
 import format from 'date-fns/format';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
@@ -30,7 +30,7 @@ const baseClass = 'view-version';
 const VersionView: React.FC<Props> = ({ collection, global }) => {
   const { serverURL, routes: { admin, api }, admin: { dateFormat }, localization } = useConfig();
   const { setStepNav } = useStepNav();
-  const { params: { id, versionID } } = useRouteMatch<{ id?: string, versionID: string }>();
+  const { id, versionID } = useParams<{ id?: string, versionID: string }>();
   const [compareValue, setCompareValue] = useState<CompareOption>(mostRecentVersionOption);
   const [localeOptions] = useState<LocaleOption[]>(() => (localization ? localization.locales.map((locale) => ({ label: locale, value: locale })) : []));
   const [locales, setLocales] = useState<LocaleOption[]>(localeOptions);

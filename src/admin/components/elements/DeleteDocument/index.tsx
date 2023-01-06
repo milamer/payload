@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { Modal, useModal } from '@faceless-ui/modal';
 import { Trans, useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
@@ -36,7 +36,7 @@ const DeleteDocument: React.FC<Props> = (props) => {
   const { setModified } = useForm();
   const [deleting, setDeleting] = useState(false);
   const { toggleModal } = useModal();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation('general');
   const title = useTitle(useAsTitle) || id;
   const titleToRender = titleFromProps || title;
@@ -61,7 +61,7 @@ const DeleteDocument: React.FC<Props> = (props) => {
         if (res.status < 400) {
           toggleModal(modalSlug);
           toast.success(t('titleDeleted', { label: getTranslation(singular, i18n), title }));
-          return history.push(`${admin}/collections/${slug}`);
+          return navigate(`${admin}/collections/${slug}`);
         }
 
         toggleModal(modalSlug);
@@ -76,7 +76,7 @@ const DeleteDocument: React.FC<Props> = (props) => {
         return addDefaultError();
       }
     });
-  }, [setModified, serverURL, api, slug, id, toggleModal, modalSlug, t, singular, i18n, title, history, admin, addDefaultError]);
+  }, [setModified, serverURL, api, slug, id, toggleModal, modalSlug, t, singular, i18n, title, navigate, admin, addDefaultError]);
 
   if (id) {
     return (

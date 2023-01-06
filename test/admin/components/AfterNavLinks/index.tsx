@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom-v5-compat';
 import { useConfig } from '../../../../src/admin/components/utilities/Config';
 
 // As this is the demo project, we import our dependencies from the `src` directory.
@@ -19,16 +19,14 @@ const AfterNavLinks: React.FC = () => {
       <span className="nav__label">Custom Routes</span>
       <nav>
         <NavLink
-          className="nav__link"
-          activeClassName="active"
+          className={({ isActive }) => `nav__link${(isActive ? ' active' : '')}`}
           to={`${adminRoute}/custom-default-route`}
         >
           <Chevron />
           Default Template
         </NavLink>
         <NavLink
-          className="nav__link"
-          activeClassName="active"
+          className={({ isActive }) => `nav__link${(isActive ? ' active' : '')}`}
           to={`${adminRoute}/custom-minimal-route`}
         >
           <Chevron />

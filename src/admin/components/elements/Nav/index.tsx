@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Link, useHistory } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
 import { useAuth } from '../../utilities/Auth';
@@ -23,7 +23,6 @@ const DefaultNav = () => {
   const { permissions } = useAuth();
   const [menuActive, setMenuActive] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
-  const history = useHistory();
   const { i18n } = useTranslation('general');
   const {
     collections,
@@ -66,9 +65,11 @@ const DefaultNav = () => {
     ], permissions, i18n));
   }, [collections, globals, permissions, i18n, i18n.language]);
 
-  useEffect(() => history.listen(() => {
+  const location = useLocation();
+  useEffect(() => {
+    // Close the menu when the location changes
     setMenuActive(false);
-  }), [history]);
+  }, [location]);
 
   return (
     <aside className={classes}>
@@ -118,8 +119,7 @@ const DefaultNav = () => {
                   return (
                     <NavLink
                       id={id}
-                      className={`${baseClass}__link`}
-                      activeClassName="active"
+                      className={({ isActive }) => `${baseClass}__link${(isActive ? ' active' : '')}`}
                       key={i}
                       to={href}
                     >

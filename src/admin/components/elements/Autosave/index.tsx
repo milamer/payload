@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { toast } from 'react-toastify';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ const Autosave: React.FC<Props> = ({ collection, global, id, publishedDocUpdated
   const [fields] = useAllFormFields();
   const modified = useFormModified();
   const locale = useLocale();
-  const { replace } = useHistory();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation('version');
 
   let interval = 800;
@@ -56,7 +56,8 @@ const Autosave: React.FC<Props> = ({ collection, global, id, publishedDocUpdated
 
     if (res.status === 201) {
       const json = await res.json();
-      replace(`${admin}/collections/${collection.slug}/${json.doc.id}`, {
+      navigate(`${admin}/collections/${collection.slug}/${json.doc.id}`, {
+        replace: true,
         state: {
           data: json.doc,
         },
@@ -64,7 +65,7 @@ const Autosave: React.FC<Props> = ({ collection, global, id, publishedDocUpdated
     } else {
       toast.error(t('error:autosaving'));
     }
-  }, [i18n, serverURL, api, collection, locale, replace, admin, t]);
+  }, [i18n, serverURL, api, collection, locale, navigate, admin, t]);
 
   useEffect(() => {
     // If no ID, but this is used for a collection doc,

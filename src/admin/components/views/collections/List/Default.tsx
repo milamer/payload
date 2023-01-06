@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../../utilities/Config';
 import UploadGallery from '../../../elements/UploadGallery';
@@ -54,7 +54,7 @@ const DefaultList: React.FC<Props> = (props) => {
   } = props;
 
   const { routes: { admin } } = useConfig();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation('general');
 
   return (
@@ -112,7 +112,7 @@ const DefaultList: React.FC<Props> = (props) => {
                 collection={collection}
                 onCardClick={(doc) => {
                   if (typeof onCardClick === 'function') onCardClick(doc);
-                  if (!disableCardLink) history.push(`${admin}/collections/${slug}/${doc.id}`);
+                  if (!disableCardLink) navigate(`${admin}/collections/${slug}/${doc.id}`);
                 }}
               />
             )}

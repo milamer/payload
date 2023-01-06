@@ -1,6 +1,6 @@
 import React from 'react';
 import qs from 'qs';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from '../../utilities/SearchParams';
 import Popup from '../Popup';
@@ -22,7 +22,7 @@ export type Props = {
 
 const PerPage: React.FC<Props> = ({ limits = defaultLimits, limit, handleChange, modifySearchParams = true }) => {
   const params = useSearchParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t } = useTranslation('general');
 
   return (
@@ -53,12 +53,12 @@ const PerPage: React.FC<Props> = ({ limits = defaultLimits, limit, handleChange,
                       close();
                       if (handleChange) handleChange(limitNumber);
                       if (modifySearchParams) {
-                        history.replace({
+                        navigate({
                           search: qs.stringify({
                             ...params,
                             limit: limitNumber,
                           }, { addQueryPrefix: true }),
-                        });
+                        }, { replace: true });
                       }
                     }}
                   >

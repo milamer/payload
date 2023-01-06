@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Switch, withRouter, Redirect } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import { CompatRoute, useMatch, Navigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './utilities/Auth';
@@ -290,7 +290,7 @@ function LoggedInRoutes() {
 }
 
 function AdminRoute() {
-  const [initialized, setInitialized] = useState(null);
+  const [initialized, setInitialized] = useState<boolean | null>(null);
   const { user, permissions } = useAuth();
   const { i18n } = useTranslation();
 
@@ -345,8 +345,8 @@ function AdminRoute() {
         <CompatRoute path={`${adminMatch.pathnameBase}create-first-user`}>
           <CreateFirstUser setInitialized={setInitialized} />
         </CompatRoute>
-        <CompatRoute>
-          <Redirect to={`${adminMatch.pathnameBase}/create-first-user`} />
+        <CompatRoute path="*">
+          <Navigate to={`${adminMatch.pathnameBase}/create-first-user`} />
         </CompatRoute>
       </Switch>
     );
@@ -440,4 +440,4 @@ const Routes = () => {
   );
 };
 
-export default withRouter(Routes);
+export default Routes;

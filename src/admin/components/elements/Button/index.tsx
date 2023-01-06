@@ -1,5 +1,5 @@
 import React, { Fragment, isValidElement } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom-v5-compat';
 import { Props } from './types';
 
 import plus from '../../icons/Plus';

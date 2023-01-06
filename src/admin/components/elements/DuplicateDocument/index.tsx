@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { toast } from 'react-toastify';
 import { Modal, useModal } from '@faceless-ui/modal';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,7 @@ import './index.scss';
 const baseClass = 'duplicate';
 
 const Duplicate: React.FC<Props> = ({ slug, collection, id }) => {
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const modified = useFormModified();
   const { toggleModal } = useModal();
   const { setModified } = useForm();
@@ -131,11 +131,11 @@ const Duplicate: React.FC<Props> = ({ slug, collection, id }) => {
     setModified(false);
 
     setTimeout(() => {
-      push({
+      navigate({
         pathname: `${admin}/collections/${slug}/${duplicateID}`,
       });
     }, 10);
-  }, [modified, localization, t, i18n, collection, setModified, toggleModal, modalSlug, serverURL, api, slug, id, push, admin]);
+  }, [modified, localization, t, i18n, collection, setModified, toggleModal, modalSlug, serverURL, api, slug, id, navigate, admin]);
 
   const confirm = useCallback(async () => {
     setHasClicked(false);

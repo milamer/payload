@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import isDeepEqual from 'deep-equal';
 import { serialize } from 'object-to-formdata';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../utilities/Auth';
@@ -45,7 +45,7 @@ const Form: React.FC<Props> = (props) => {
     waitForAutocomplete,
   } = props;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const locale = useLocale();
   const { t, i18n } = useTranslation('general');
   const { refreshCookie, user } = useAuth();
@@ -210,7 +210,7 @@ const Form: React.FC<Props> = (props) => {
             };
           }
 
-          history.push(destination);
+          navigate(destination);
         } else if (!disableSuccessStatus) {
           toast.success(json.message || t('submissionSuccessful'), { autoClose: 3000 });
         }
@@ -292,7 +292,7 @@ const Form: React.FC<Props> = (props) => {
     dispatchFields,
     fields,
     handleResponse,
-    history,
+    navigate,
     method,
     onSubmit,
     onSuccess,

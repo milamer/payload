@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import queryString from 'qs';
 import { useTranslation } from 'react-i18next';
 import { Props } from './types';
@@ -23,7 +23,7 @@ const SearchFilter: React.FC<Props> = (props) => {
   } = props;
 
   const params = useSearchParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation('general');
 
   const [search, setSearch] = useState('');
@@ -64,18 +64,18 @@ const SearchFilter: React.FC<Props> = (props) => {
       if (handleChange) handleChange(newWhere as Where);
 
       if (modifySearchQuery) {
-        history.replace({
+        navigate({
           search: queryString.stringify({
             ...params,
             page: 1,
             where: newWhere,
           }),
-        });
+        }, { replace: true });
       }
 
       setPreviousSearch(debouncedSearch);
     }
-  }, [debouncedSearch, previousSearch, history, fieldName, params, handleChange, modifySearchQuery, listSearchableFields]);
+  }, [debouncedSearch, navigate, previousSearch, fieldName, params, handleChange, modifySearchQuery, listSearchableFields]);
 
   useEffect(() => {
     if (listSearchableFields?.length > 0) {

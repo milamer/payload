@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import queryString from 'qs';
 import { useTranslation } from 'react-i18next';
 import { Props } from './types';
@@ -17,7 +17,7 @@ const SortColumn: React.FC<Props> = (props) => {
     label, name, disable = false,
   } = props;
   const params = useSearchParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { i18n } = useTranslation();
 
   const { sort } = params;
@@ -32,13 +32,13 @@ const SortColumn: React.FC<Props> = (props) => {
   if (sort === desc) descClasses.push(`${baseClass}--active`);
 
   const setSort = useCallback((newSort) => {
-    history.push({
+    navigate({
       search: queryString.stringify({
         ...params,
         sort: newSort,
       }, { addQueryPrefix: true }),
     });
-  }, [params, history]);
+  }, [params, navigate]);
 
   return (
     <div className={baseClass}>

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom-v5-compat';
 import { useConfig } from '../../../../../src/admin/components/utilities/Config';
 
 // As this is the demo project, we import our dependencies from the `src` directory.
@@ -36,7 +36,7 @@ const CustomDefaultRoute: AdminView = ({ user, canAccessAdmin }) => {
   // Boot 'em out
   if (!user || (user && !canAccessAdmin)) {
     return (
-      <Redirect to={`${adminRoute}/unauthorized`} />
+      <Navigate to={`${adminRoute}/unauthorized`} />
     );
   }
 

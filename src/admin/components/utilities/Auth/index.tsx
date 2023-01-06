@@ -2,7 +2,7 @@ import React, {
   useState, createContext, useContext, useEffect, useCallback,
 } from 'react';
 import jwtDecode from 'jwt-decode';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom-v5-compat';
 import { useModal } from '@faceless-ui/modal';
 import { useTranslation } from 'react-i18next';
 import { User, Permissions } from '../../../../auth/types';
@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>();
   const [tokenInMemory, setTokenInMemory] = useState<string>();
   const { pathname } = useLocation();
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const config = useConfig();
 
@@ -63,11 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(json.user);
         } else {
           setUser(null);
-          push(`${admin}${logoutInactivityRoute}`);
+          navigate(`${admin}${logoutInactivityRoute}`);
         }
       }, 1000);
     }
-  }, [exp, serverURL, api, userSlug, push, admin, logoutInactivityRoute, i18n]);
+  }, [exp, serverURL, api, userSlug, navigate, admin, logoutInactivityRoute, i18n]);
 
   const setToken = useCallback((token: string) => {
     const decoded = jwtDecode<User>(token);
@@ -159,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (remainingTime > 0) {
       forceLogOut = setTimeout(() => {
         setUser(null);
-        push(`${admin}${logoutInactivityRoute}`);
+        navigate(`${admin}${logoutInactivityRoute}`);
         closeAllModals();
       }, Math.min(remainingTime * 1000, maxTimeoutTime));
     }
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       if (forceLogOut) clearTimeout(forceLogOut);
     };
-  }, [exp, push, closeAllModals, admin, i18n, logoutInactivityRoute]);
+  }, [exp, navigate, closeAllModals, admin, i18n, logoutInactivityRoute]);
 
   return (
     <Context.Provider value={{

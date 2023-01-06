@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom-v5-compat';
 import { Trans, useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
 import { useAuth } from '../../utilities/Auth';
@@ -17,7 +17,7 @@ import './index.scss';
 const baseClass = 'login';
 
 const Login: React.FC = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t } = useTranslation('authentication');
   const { user, setToken } = useAuth();
   const config = useConfig();
@@ -28,7 +28,6 @@ const Login: React.FC = () => {
       components: {
         beforeLogin,
         afterLogin,
-        logout
       } = {},
     },
     serverURL,
@@ -44,7 +43,7 @@ const Login: React.FC = () => {
   const onSuccess = (data) => {
     if (data.token) {
       setToken(data.token);
-      history.push(admin);
+      navigate(admin);
     }
   };
 

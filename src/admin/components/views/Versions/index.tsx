@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useParams } from 'react-router-dom-v5-compat';
 import format from 'date-fns/format';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
@@ -30,7 +30,7 @@ const baseClass = 'versions';
 const Versions: React.FC<Props> = ({ collection, global }) => {
   const { serverURL, routes: { admin, api }, admin: { dateFormat } } = useConfig();
   const { setStepNav } = useStepNav();
-  const { params: { id } } = useRouteMatch<{ id: string }>();
+  const { id } = useParams<{id: string}>();
   const { t, i18n } = useTranslation('version');
   const [tableColumns] = useState(() => getColumns(collection, global, t));
   const [fetchURL, setFetchURL] = useState('');

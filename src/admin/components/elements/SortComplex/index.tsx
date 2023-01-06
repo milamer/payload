@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import queryString from 'qs';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { Props } from './types';
 import ReactSelect from '../ReactSelect';
@@ -20,7 +20,7 @@ const SortComplex: React.FC<Props> = (props) => {
     handleChange,
   } = props;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useSearchParams();
   const { t, i18n } = useTranslation('general');
   const [sortOptions, setSortOptions] = useState<OptionObject[]>();
@@ -46,15 +46,15 @@ const SortComplex: React.FC<Props> = (props) => {
       if (handleChange) handleChange(newSortValue);
 
       if (params.sort !== newSortValue && modifySearchQuery) {
-        history.replace({
+        navigate({
           search: queryString.stringify({
             ...params,
             sort: newSortValue,
           }, { addQueryPrefix: true }),
-        });
+        }, { replace: true });
       }
     }
-  }, [history, params, sortField, sortOrder, modifySearchQuery, handleChange]);
+  }, [params, navigate, sortField, sortOrder, modifySearchQuery, handleChange]);
 
   useEffect(() => {
     setSortOptions([{ label: t('ascending'), value: '' }, { label: t('descending'), value: '-' }]);

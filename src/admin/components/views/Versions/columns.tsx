@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom-v5-compat';
 import format from 'date-fns/format';
 import type { TFunction } from 'react-i18next';
 import { useConfig } from '../../utilities/Config';
@@ -18,7 +18,7 @@ type CreatedAtCellProps = {
 
 const CreatedAtCell: React.FC<CreatedAtCellProps> = ({ collection, global, id, date }) => {
   const { routes: { admin }, admin: { dateFormat } } = useConfig();
-  const { params: { id: docID } } = useRouteMatch<{ id: string }>();
+  const { id: docID } = useParams<{ id: string }>();
 
   let to: string;
 

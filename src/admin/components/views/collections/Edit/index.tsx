@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Redirect, useRouteMatch, useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate, useParams } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '../../../utilities/Config';
 import { useAuth } from '../../../utilities/Auth';
@@ -37,9 +37,9 @@ const EditView: React.FC<IndexProps> = (props) => {
 
   const locale = useLocale();
   const { serverURL, routes: { admin, api } } = useConfig();
-  const { params: { id } = {} } = useRouteMatch<Record<string, string>>();
+  const { id } = useParams<{id: string}>();
   const { state: locationState } = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [initialState, setInitialState] = useState<Fields>();
   const [updatedAt, setUpdatedAt] = useState<string>();
   const { user } = useAuth();
@@ -82,13 +82,13 @@ const EditView: React.FC<IndexProps> = (props) => {
 
   useEffect(() => {
     if (redirect) {
-      history.push(redirect);
+      navigate(redirect);
     }
-  }, [history, redirect]);
+  }, [navigate, redirect]);
 
   if (isError) {
     return (
-      <Redirect to={`${admin}/not-found`} />
+      <Navigate to={`${admin}/not-found`} />
     );
   }
 

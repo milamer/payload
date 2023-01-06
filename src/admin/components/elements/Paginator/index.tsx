@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom-v5-compat';
 import queryString from 'qs';
 import { Props, Node } from './types';
 
@@ -19,7 +19,7 @@ const nodeTypes = {
 const baseClass = 'paginator';
 
 const Pagination: React.FC<Props> = (props) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useSearchParams();
 
   const {
@@ -44,7 +44,7 @@ const Pagination: React.FC<Props> = (props) => {
       };
 
       newParams.page = page;
-      history.push({ search: queryString.stringify(newParams, { addQueryPrefix: true }) });
+      navigate({ search: queryString.stringify(newParams, { addQueryPrefix: true }) });
     }
 
     if (typeof onChange === 'function') onChange(page);
