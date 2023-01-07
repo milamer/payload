@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Switch } from 'react-router-dom';
-import { CompatRoute, useMatch, Navigate } from 'react-router-dom-v5-compat';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './utilities/Auth';
 import { useConfig } from './utilities/Config';
@@ -13,6 +12,7 @@ import Versions from './views/Versions';
 import Version from './views/Version';
 import { DocumentInfoProvider } from './utilities/DocumentInfo';
 import { useLocale } from './utilities/Locale';
+import { SanitizedCollectionConfig } from '../../collections/config/types';
 
 const Dashboard = lazy(() => import('./views/Dashboard'));
 const ForgotPassword = lazy(() => import('./views/ForgotPassword'));
@@ -27,6 +27,22 @@ const ResetPassword = lazy(() => import('./views/ResetPassword'));
 const Unauthorized = lazy(() => import('./views/Unauthorized'));
 const Account = lazy(() => import('./views/Account'));
 
+function CollectionView({ collection }: { collection: SanitizedCollectionConfig }) {
+  const { id } = useParams();
+
+  return (
+    <DocumentInfoProvider
+      collection={collection}
+      id={id}
+    >
+      <Edit
+        isEditing
+        collection={collection}
+      />
+    </DocumentInfoProvider>
+  );
+}
+
 function LoggedInRoutes() {
   const { user, permissions } = useAuth();
   const locale = useLocale();
@@ -35,19 +51,13 @@ function LoggedInRoutes() {
 
   const config = useConfig();
   const {
-    admin: {
-      user: userSlug,
-    },
-    routes,
+    admin: { user: userSlug },
     collections,
     globals,
   } = config;
 
-
-  const trimmedAdminPath = routes.admin.replace(/\/$/, '');
-
   if (!user) {
-    return <Navigate to={`${trimmedAdminPath}/login`} />;
+    return <Navigate to="login" />;
   }
   if (canAccessAdmin === undefined) {
     return <Loading />;
@@ -59,232 +69,143 @@ function LoggedInRoutes() {
 
   return (
     <DefaultTemplate>
-      <Switch>
-        <CompatRoute
-          path={`${trimmedAdminPath}/`}
-          exact
-        >
-          <Dashboard />
-        </CompatRoute>
-
-        <CompatRoute path={`${trimmedAdminPath}/account`}>
-          <DocumentInfoProvider
-            collection={collections.find(({ slug }) => slug === userSlug)}
-            id={user.id}
-          >
-            <Account />
-          </DocumentInfoProvider>
-        </CompatRoute>
-
-        {collections.reduce((collectionRoutes, collection) => {
-          const routesToReturn = [
-            ...collectionRoutes,
-            <CompatRoute
-              key={`${collection.slug}-list`}
-              path={`${trimmedAdminPath}/collections/${collection.slug}`}
-              exact
-              render={(routeProps) => {
-                if (
-                  permissions?.collections?.[collection.slug]?.read?.permission
-                ) {
-                  return (
-                    <List
-                      {...routeProps}
-                      collection={collection}
-                    />
-                  );
+      <Routes>
+        <Route
+          path="/"
+          element={<Dashboard />}
+        />
+        <Route
+          path="account"
+          element={(
+            <DocumentInfoProvider
+              collection={collections.find(({ slug }) => slug === userSlug)}
+              id={user.id}
+            >
+              <Account />
+            </DocumentInfoProvider>
+          )}
+        />
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
+        {collections.map((collection) => {
+          return (
+            <React.Fragment key={collection.slug}>
+              <Route
+                path={`collections/${collection.slug}`}
+                element={
+                  permissions?.collections?.[collection.slug]?.read
+                    ?.permission ? (
+                      <List collection={collection} />
+                  ) : (
+                    <Unauthorized />
+                  )
                 }
-
-                return <Unauthorized />;
-              }}
-            />,
-            <CompatRoute
-              key={`${collection.slug}-create`}
-              path={`${trimmedAdminPath}/collections/${collection.slug}/create`}
-              exact
-              render={(routeProps) => {
-                if (
+              />
+              <Route
+                path={`collections/${collection.slug}/create`}
+                element={
                   permissions?.collections?.[collection.slug]?.create
-                    ?.permission
-                ) {
-                  return (
-                    <DocumentInfoProvider collection={collection}>
-                      <Edit
-                        {...routeProps}
-                        collection={collection}
-                      />
-                    </DocumentInfoProvider>
-                  );
-                }
-
-                return <Unauthorized />;
-              }}
-            />,
-            <CompatRoute
-              key={`${collection.slug}-edit`}
-              path={`${trimmedAdminPath}/collections/${collection.slug}/:id`}
-              exact
-              render={(routeProps) => {
-                const {
-                  match: {
-                    params: { id },
-                  },
-                } = routeProps;
-                if (
-                  permissions?.collections?.[collection.slug]?.read?.permission
-                ) {
-                  return (
-                    <DocumentInfoProvider
-                      key={`${collection.slug}-edit-${id}-${locale}`}
-                      collection={collection}
-                      id={id}
-                    >
-                      <Edit
-                        isEditing
-                        {...routeProps}
-                        collection={collection}
-                      />
-                    </DocumentInfoProvider>
-                  );
-                }
-
-                return <Unauthorized />;
-              }}
-            />,
-          ];
-
-          if (collection.versions) {
-            routesToReturn.push(
-              <CompatRoute
-                key={`${collection.slug}-versions`}
-                path={`${trimmedAdminPath}/collections/${collection.slug}/:id/versions`}
-                exact
-                render={(routeProps) => {
-                  if (
-                    permissions?.collections?.[collection.slug]?.readVersions
-                      ?.permission
-                  ) {
-                    return (
-                      <Versions
-                        {...routeProps}
-                        collection={collection}
-                      />
-                    );
-                  }
-
-                  return <Unauthorized />;
-                }}
-              />,
-            );
-
-            routesToReturn.push(
-              <CompatRoute
-                key={`${collection.slug}-view-version`}
-                path={`${trimmedAdminPath}/collections/${collection.slug}/:id/versions/:versionID`}
-                exact
-                render={(routeProps) => {
-                  if (
-                    permissions?.collections?.[collection.slug]?.readVersions
-                      ?.permission
-                  ) {
-                    return (
-                      <Version
-                        {...routeProps}
-                        collection={collection}
-                      />
-                    );
-                  }
-
-                  return <Unauthorized />;
-                }}
-              />,
-            );
-          }
-
-          return routesToReturn;
-        }, [])}
-
-        {globals
-          && globals.reduce((globalRoutes, global) => {
-            const routesToReturn = [
-              ...globalRoutes,
-              <CompatRoute
-                key={`${global.slug}`}
-                path={`${trimmedAdminPath}/globals/${global.slug}`}
-                exact
-                render={(routeProps) => {
-                  if (permissions?.globals?.[global.slug]?.read?.permission) {
-                    return (
-                      <DocumentInfoProvider
-                        global={global}
-                        key={`${global.slug}-${locale}`}
-                      >
-                        <EditGlobal
-                          {...routeProps}
-                          global={global}
-                        />
+                    ?.permission ? (
+                      <DocumentInfoProvider collection={collection}>
+                        <Edit collection={collection} />
                       </DocumentInfoProvider>
-                    );
-                  }
-
-                  return <Unauthorized />;
-                }}
-              />,
-            ];
-
-            if (global.versions) {
-              routesToReturn.push(
-                <CompatRoute
-                  key={`${global.slug}-versions`}
-                  path={`${trimmedAdminPath}/globals/${global.slug}/versions`}
-                  exact
-                  render={(routeProps) => {
-                    if (
-                      permissions?.globals?.[global.slug]?.readVersions
-                        ?.permission
-                    ) {
-                      return (
-                        <Versions
-                          {...routeProps}
-                          global={global}
-                        />
-                      );
+                  ) : (
+                    <Unauthorized />
+                  )
+                }
+              />
+              <Route
+                path={`collections/${collection.slug}/:id`}
+                element={
+                  permissions?.collections?.[collection.slug]?.read
+                    ?.permission ? (
+                      <CollectionView collection={collection} />
+                  ) : (
+                    <Unauthorized />
+                  )
+                }
+              />
+              {collection.versions ? (
+                <React.Fragment>
+                  <Route
+                    path={`collections/${collection.slug}/:id/versions`}
+                    element={
+                      permissions?.collections?.[collection.slug]?.readVersions
+                        ?.permission ? (
+                          <Versions collection={collection} />
+                      ) : (
+                        <Unauthorized />
+                      )
                     }
-
-                    return <Unauthorized />;
-                  }}
-                />,
-              );
-              routesToReturn.push(
-                <CompatRoute
-                  key={`${global.slug}-view-version`}
-                  path={`${trimmedAdminPath}/globals/${global.slug}/versions/:versionID`}
-                  exact
-                  render={(routeProps) => {
-                    if (
-                      permissions?.globals?.[global.slug]?.readVersions
-                        ?.permission
-                    ) {
-                      return (
-                        <Version
-                          {...routeProps}
-                          global={global}
-                        />
-                      );
+                  />
+                  <Route
+                    path={`collections/${collection.slug}/:id/versions/:versionID`}
+                    element={
+                      permissions?.collections?.[collection.slug]?.readVersions
+                        ?.permission ? (
+                          <Version collection={collection} />
+                      ) : (
+                        <Unauthorized />
+                      )
                     }
+                  />
+                </React.Fragment>
+              ) : null}
+            </React.Fragment>
+          );
+        })}
 
-                    return <Unauthorized />;
-                  }}
-                />,
-              );
-            }
-            return routesToReturn;
-          }, [])}
+        {globals.map((global) => {
+          return (
+            <React.Fragment key={global.slug}>
+              <Route
+                path={`globals/${global.slug}`}
+                element={
+                  permissions?.globals?.[global.slug]?.read?.permission ? (
+                    <DocumentInfoProvider
+                      global={global}
+                      key={`${global.slug}-${locale}`}
+                    >
+                      <EditGlobal global={global} />
+                    </DocumentInfoProvider>
+                  ) : (
+                    <Unauthorized />
+                  )
+                }
+              />
 
-        <CompatRoute path={`${trimmedAdminPath}/*`}>
-          <NotFound />
-        </CompatRoute>
-      </Switch>
+              {global.versions ? (
+                <React.Fragment>
+                  <Route
+                    path={`globals/${global.slug}/versions`}
+                    element={
+                      permissions?.globals?.[global.slug]?.readVersions
+                        ?.permission ? (
+                          <Versions global={global} />
+                      ) : (
+                        <Unauthorized />
+                      )
+                    }
+                  />
+                  <Route
+                    path={`globals/${global.slug}/versions/:versionID`}
+                    element={
+                      permissions?.globals?.[global.slug]?.readVersions
+                        ?.permission ? (
+                          <Version global={global} />
+                      ) : (
+                        <Unauthorized />
+                      )
+                    }
+                  />
+                </React.Fragment>
+              ) : null}
+            </React.Fragment>
+          );
+        })}
+      </Routes>
     </DefaultTemplate>
   );
 }
@@ -330,25 +251,22 @@ function AdminRoute() {
     }
   }, [i18n.language, routes, userCollection]);
 
-  const adminMatch = useMatch({
-    path: routes.admin,
-    end: false,
-  });
-
-  if (!adminMatch || initialized === null) {
+  if (initialized === null) {
     return null;
   }
 
   if (initialized === false) {
     return (
-      <Switch>
-        <CompatRoute path={`${adminMatch.pathnameBase}create-first-user`}>
-          <CreateFirstUser setInitialized={setInitialized} />
-        </CompatRoute>
-        <CompatRoute path="*">
-          <Navigate to={`${adminMatch.pathnameBase}/create-first-user`} />
-        </CompatRoute>
-      </Switch>
+      <Routes>
+        <Route
+          path="create-first-user"
+          element={<CreateFirstUser setInitialized={setInitialized} />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to="create-first-user" />}
+        />
+      </Routes>
     );
   }
 
@@ -363,81 +281,89 @@ function AdminRoute() {
   const trimmedLogoutInactivityRoute = logoutInactivityRoute.replace(/^\//, '');
 
   return (
-    <Switch>
+    <Routes>
       {Array.isArray(customRoutes)
-        && customRoutes.map(({ path, Component, strict, exact, sensitive }) => {
+        && customRoutes.map(({ path, Component }) => {
           const trimmedPath = path.replace(/^\//, '');
           return (
-            <CompatRoute
+            <Route
               key={trimmedPath}
-              path={`${adminMatch.pathnameBase}/${trimmedPath}`}
-              strict={strict}
-              exact={exact}
-              sensitive={sensitive}
-            >
-              <Component
-                user={user}
-                canAccessAdmin={canAccessAdmin}
-              />
-            </CompatRoute>
+              path={trimmedPath}
+              element={(
+                <Component
+                  user={user}
+                  canAccessAdmin={canAccessAdmin}
+                />
+              )}
+            />
           );
         })}
 
-      <CompatRoute path={`${adminMatch.pathnameBase}/login`}>
-        <Login />
-      </CompatRoute>
-      <CompatRoute path={`${adminMatch.pathnameBase}/${trimmedLogoutRoute}`}>
-        <Logout />
-      </CompatRoute>
-      <CompatRoute
-        path={`${adminMatch.pathnameBase}/${trimmedLogoutInactivityRoute}`}
-      >
-        <Logout inactivity />
-      </CompatRoute>
+      <Route
+        path="login"
+        element={<Login />}
+      />
+      <Route
+        path={trimmedLogoutRoute}
+        element={<Logout />}
+      />
+      <Route
+        path={trimmedLogoutInactivityRoute}
+        element={<Logout inactivity />}
+      />
 
       {!userCollection.auth.disableLocalStrategy && (
-        <CompatRoute path={`${adminMatch.pathnameBase}/forgot`}>
-          <ForgotPassword />
-        </CompatRoute>
+        <Route
+          path="forgot"
+          element={<ForgotPassword />}
+        />
       )}
 
       {!userCollection.auth.disableLocalStrategy && (
-        <CompatRoute path={`${adminMatch.pathnameBase}/reset/:token`}>
-          <ResetPassword />
-        </CompatRoute>
+        <Route
+          path="reset/:token"
+          element={<ResetPassword />}
+        />
       )}
 
       {collections.map((collection) => {
         if (collection?.auth?.verify && !collection.auth.disableLocalStrategy) {
           return (
-            <CompatRoute
+            <Route
               key={`${collection.slug}-verify`}
-              path={`${adminMatch.pathnameBase}/${collection.slug}/verify/:token`}
-              exact
-            >
-              <Verify collection={collection} />
-            </CompatRoute>
+              path={`${collection.slug}/verify/:token`}
+              element={<Verify collection={collection} />}
+            />
           );
         }
         return null;
       })}
-      <LoggedInRoutes />
-      <CompatRoute path={`${adminMatch.pathnameBase}/*`}>
-        <NotFound />
-      </CompatRoute>
-    </Switch>
+      <Route
+        path="*"
+        element={<LoggedInRoutes />}
+      />
+    </Routes>
   );
 }
 
-const Routes = () => {
+const RoutesWrapper = () => {
   const { refreshCookie } = useAuth();
+  const { routes } = useConfig();
+
+  // Remove trailing slash from admin route to avoid double slashes
+  const trimmedAdminRoute = routes.admin.replace(/\/$/, '');
 
   return (
     <Suspense fallback={<Loading />}>
-      <AdminRoute />
+      <Routes>
+        <Route
+          path={`${trimmedAdminRoute}/*`}
+          element={<AdminRoute />}
+        />
+      </Routes>
       <StayLoggedIn refreshCookie={refreshCookie} />
     </Suspense>
   );
 };
 
-export default Routes;
+export default RoutesWrapper;
