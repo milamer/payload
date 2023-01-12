@@ -1,6 +1,10 @@
 import { buildConfig } from '../buildConfig';
 
 export default buildConfig({
+  localization: {
+    defaultLocale: 'en',
+    locales: ['en', 'de'],
+  },
   collections: [
     {
       slug: 'arrays',
@@ -13,10 +17,12 @@ export default buildConfig({
               type: 'text',
               name: 'required',
               required: true,
+              localized: true,
             },
             {
               type: 'text',
               name: 'optional',
+              localized: true,
             },
           ],
         },

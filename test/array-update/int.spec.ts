@@ -103,4 +103,176 @@ describe('array-update', () => {
 
     expect(updatedDoc.array?.[1]).toMatchObject(secondArrayItem);
   });
+  describe('locale', () => {
+    it('should should sort array items based on id', async () => {
+      const en = {
+        firstArrayItem: {
+          required: 'a required field here',
+          optional: 'some optional text',
+        },
+        secondArrayItem: {
+          required: 'test',
+          optional: 'optional test',
+        },
+      };
+      const de = {
+        firstArrayItem: {
+          required: 'hier ein Pflichtfeld',
+          optional: 'ein optionaler text',
+        },
+        secondArrayItem: {
+          required: 'test de',
+          optional: 'optionaler test',
+        },
+      };
+
+      const doc = await payload.create<ArrayCollection>({
+        locale: 'en',
+        collection,
+        data: {
+          array: [
+            en.firstArrayItem,
+            en.secondArrayItem,
+          ],
+        },
+      });
+
+      await payload.update<ArrayCollection>({
+        id: doc.id,
+        locale: 'de',
+        collection,
+        data: {
+          array: [
+            { id: doc.array?.[0].id, ...de.firstArrayItem },
+            { id: doc.array?.[1].id, ...de.secondArrayItem },
+          ],
+        },
+      });
+      await payload.update<ArrayCollection>({
+        id: doc.id,
+        locale: 'en',
+        collection,
+        data: {
+          array: [
+            // swap order
+            { id: doc.array?.[1].id, ...en.secondArrayItem },
+            { id: doc.array?.[0].id, ...en.firstArrayItem },
+          ],
+        },
+      });
+
+      const enDoc = await payload.findByID<ArrayCollection>({
+        id: doc.id,
+        locale: 'en',
+        collection,
+      });
+
+      expect(enDoc.array?.[0].id).toStrictEqual(doc.array?.[1].id);
+      expect(enDoc.array?.[1].id).toStrictEqual(doc.array?.[0].id);
+      expect(enDoc.array?.[0]).toMatchObject(en.secondArrayItem);
+      expect(enDoc.array?.[1]).toMatchObject(en.firstArrayItem);
+
+
+      const deDoc = await payload.findByID<ArrayCollection>({
+        id: doc.id,
+        locale: 'de',
+        collection,
+      });
+
+      expect(deDoc.array?.[0].id).toStrictEqual(doc.array?.[1].id);
+      expect(deDoc.array?.[1].id).toStrictEqual(doc.array?.[0].id);
+      expect(deDoc.array?.[0]).toMatchObject(de.secondArrayItem);
+      expect(deDoc.array?.[1]).toMatchObject(de.firstArrayItem);
+    });
+    it('should should delete array items based on id', async () => {
+      const en = {
+        firstArrayItem: {
+          required: 'a required field here',
+          optional: 'some optional text',
+        },
+        secondArrayItem: {
+          required: 'test',
+          optional: 'optional test',
+        },
+        thirdArrayItem: {
+          required: 'test 3',
+          optional: 'optional test 3',
+        },
+      };
+      const de = {
+        firstArrayItem: {
+          required: 'hier ein Pflichtfeld',
+          optional: 'ein optionaler text',
+        },
+        secondArrayItem: {
+          required: 'test de',
+          optional: 'optionaler test',
+        },
+        thirdArrayItem: {
+          required: 'test de 3',
+          optional: 'optionaler test 3',
+        },
+      };
+
+      const doc = await payload.create<ArrayCollection>({
+        locale: 'en',
+        collection,
+        data: {
+          array: [
+            en.firstArrayItem,
+            en.secondArrayItem,
+            en.thirdArrayItem,
+          ],
+        },
+      });
+
+      await payload.update<ArrayCollection>({
+        id: doc.id,
+        locale: 'de',
+        collection,
+        data: {
+          array: [
+            { id: doc.array?.[0].id, ...de.firstArrayItem },
+            { id: doc.array?.[1].id, ...de.secondArrayItem },
+            { id: doc.array?.[2].id, ...de.thirdArrayItem },
+          ],
+        },
+      });
+      await payload.update<ArrayCollection>({
+        id: doc.id,
+        locale: 'en',
+        collection,
+        data: {
+          array: [
+            // delete second item
+            { id: doc.array?.[0].id, ...en.firstArrayItem },
+            { id: doc.array?.[2].id, ...en.thirdArrayItem },
+          ],
+        },
+      });
+
+      const enDoc = await payload.findByID<ArrayCollection>({
+        id: doc.id,
+        locale: 'en',
+        collection,
+      });
+
+      expect(enDoc.array?.[0].id).toStrictEqual(doc.array?.[0].id);
+      expect(enDoc.array?.[1].id).toStrictEqual(doc.array?.[2].id);
+      expect(enDoc.array?.[0]).toMatchObject(en.firstArrayItem);
+      expect(enDoc.array?.[1]).toMatchObject(en.thirdArrayItem);
+
+
+      const deDoc = await payload.findByID<ArrayCollection>({
+        id: doc.id,
+        locale: 'de',
+        collection,
+      });
+
+      expect(deDoc.array?.[0].id).toStrictEqual(doc.array?.[0].id);
+      expect(deDoc.array?.[1].id).toStrictEqual(doc.array?.[2].id);
+      expect(deDoc.array?.[0]).toMatchObject(de.firstArrayItem);
+      expect(deDoc.array?.[1]).toMatchObject(de.thirdArrayItem);
+    });
+  });
 });
