@@ -7,6 +7,19 @@ export const postsSlug = 'posts'
 export const PostsCollection: CollectionConfig = {
   slug: postsSlug,
   admin: {
+    components: {
+      edit: {
+        // should be here?
+      },
+      views: {
+        edit: {
+          livePreview: {
+            Component: './ui/LivePreview#LivePreview',
+          },
+        },
+      },
+    },
+    livePreview: {},
     useAsTitle: 'title',
   },
   fields: [
