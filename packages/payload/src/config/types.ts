@@ -725,6 +725,81 @@ export type AfterErrorHook = (
   args: AfterErrorHookArgs,
 ) => AfterErrorResult | Promise<AfterErrorResult>
 
+type SerializablePrimitive = boolean | null | number | string | undefined
+/**
+ * Define a custom logical field type that Payload can transparently store and hydrate.
+ *
+ * A custom field type lets you work with rich runtime objects (e.g. `Temporal.PlainDate`,
+ * `URL`, a custom class, etc.) while persisting only a primitive representation that is
+ * safe for JSON / database storage (string, number, boolean, null or undefined).
+ *
+ * Lifecycle / data flow:
+ * 1. Incoming data from the database (or API) is passed to `deserialize` to obtain the runtime `TValue`.
+ * 2. Runtime values are deep‐copied (optionally using `copy`) whenever Payload needs to avoid accidental mutation.
+ * 3. Prior to persistence / transport, values are passed to `serialize` to obtain the primitive `TStored` form.
+ * 4. Optional `equals` is used for dirty / change detection (otherwise strict === or referential equality applies).
+ *
+ * Nullish values (null / undefined) should round‑trip without throwing: if the input to `serialize` or `deserialize`
+ * is null or undefined, the implementation should normally return it unchanged unless you intentionally coerce.
+ *
+ * Generic parameters:
+ * - `TValue`  – The hydrated, in‑memory representation used by application code and hooks.
+ * - `TStored` – The primitive representation that will actually be stored; must be a `SerializablePrimitive`.
+ *
+ * Example (Temporal.PlainDate stored as an ISO date string):
+ * ```ts
+ * import { Temporal } from '@js-temporal/polyfill'
+ *
+ * const TemporalPlainDateType: CustomFieldType<Temporal.PlainDate, string> = {
+ *   type: '@js-temporal/polyfill#Temporal.PlainDate',
+ *   deserialize: (iso) => Temporal.PlainDate.from(iso),
+ *   serialize: (date) => date.toString(), // YYYY-MM-DD
+ *   copy: (date) => Temporal.PlainDate.from(date),
+ *   equals: (a, b) => a.equals(b),
+ * }
+ * ```
+ */
+interface CustomFieldType<TValue, TStored extends SerializablePrimitive = string> {
+  /**
+   * Create an immutable (or safely isolated) copy of a runtime value.
+   *
+   * Provide this when `TValue` is mutable or holds internal references (e.g. Date, Temporal, custom classes)
+   * so Payload can avoid accidental external mutations when cloning form state, caching, etc.
+   * If omitted, Payload will fall back to a default strategy (identity for primitives / shallow copy where safe).
+   */
+  copy?: (value: TValue) => TValue
+  /**
+   * Convert the stored primitive representation into the rich runtime value `TValue`.
+   * This must be pure and deterministic: `deserialize(serialize(v))` should equal `v` (per `equals` if provided).
+   */
+  deserialize: (value: TStored) => TValue
+  /**
+   * Optional equality predicate for change detection and diffing.
+   * Use when referential equality (`===`) is insufficient (e.g. for dates, temporal objects, structural data).
+   * Should be reflexive, symmetric, and transitive. If omitted, Payload applies a default equality check.
+   */
+  equals?: (a: TValue, b: TValue) => boolean
+  /**
+   * Convert a runtime value into its primitive form for persistence / transport.
+   * Must be the inverse of `deserialize` for valid inputs (round‑trip). Should not mutate the original value.
+   */
+  serialize: (value: TValue) => TStored
+  /**
+   * Format convention: "import-path#exportName" (no file extension). Payload uses this
+   * to reconstruct correct import statements when generating TypeScript definitions
+   * for your project (e.g. in `payload-types.ts`).
+   *
+   * Examples:
+   * - `"@js-temporal/polyfill#Temporal.PlainDate"`
+   * - `"luxon#DateTime"`
+   * - `"./types/custom#Money"`
+   *
+   * If you do not follow the `path#export` shape, code generation may fall back to
+   * emitting the identifier as-is (potentially producing invalid import code).
+   */
+  type: string
+}
+
 /**
  * This is the central configuration
  *
@@ -1013,6 +1088,12 @@ export type Config = {
   /** Extension point to add your custom data. Server only. */
   custom?: Record<string, any>
 
+  /**
+   * Use custom types in your fields
+   *
+   * @see https://payloadcms.com/docs/fields/custom-types
+   */
+  customFieldTypes?: Array<CustomFieldType<unknown>>
   /** Pass in a database adapter for use on this project. */
   db: DatabaseAdapterResult
   /** Enable to expose more detailed error information. */

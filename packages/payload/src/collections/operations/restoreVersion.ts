@@ -150,7 +150,7 @@ export const restoreVersionOperation = async <TData extends TypeWithID = any>(
       collection: collectionConfig,
       context: req.context,
       depth: 0,
-      doc: deepCopyObjectSimple(prevDocWithLocales),
+      doc: deepCopyObjectSimple(prevDocWithLocales, false, payload.customFields.instanceToCopy),
       draft: draftArg,
       fallbackLocale: null,
       global: null,
@@ -165,7 +165,11 @@ export const restoreVersionOperation = async <TData extends TypeWithID = any>(
       collection: collectionConfig,
       context: req.context,
       depth: 0,
-      doc: deepCopyObjectSimple(versionToRestoreWithLocales),
+      doc: deepCopyObjectSimple(
+        versionToRestoreWithLocales,
+        false,
+        payload.customFields.instanceToCopy,
+      ),
       draft: draftArg,
       fallbackLocale: null,
       global: null,
@@ -175,7 +179,7 @@ export const restoreVersionOperation = async <TData extends TypeWithID = any>(
       showHiddenFields: true,
     })
 
-    let data = deepCopyObjectSimple(prevVersionDoc)
+    let data = deepCopyObjectSimple(prevVersionDoc, false, payload.customFields.instanceToCopy)
 
     // /////////////////////////////////////
     // beforeValidate - Fields

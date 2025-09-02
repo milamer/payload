@@ -109,16 +109,23 @@ Benchmark: https://github.com/AlessioGr/fastest-deep-clone-json/blob/main/test/b
  *              `Set`, `Buffer`, ... are not allowed.
  * @returns The cloned JSON value.
  */
-export function deepCopyObjectSimple<T extends JsonValue>(value: T, filterUndefined = false): T {
+export function deepCopyObjectSimple<T extends JsonValue>(
+  value: T,
+  filterUndefined = false,
+  instanceToCopy = new Map<any, (value: any) => any>(),
+): T {
   if (typeof value !== 'object' || value === null) {
     return value
   } else if (Array.isArray(value)) {
     return value.map((e) =>
-      typeof e !== 'object' || e === null ? e : deepCopyObjectSimple(e, filterUndefined),
+      typeof e !== 'object' || e === null
+        ? e
+        : deepCopyObjectSimple(e, filterUndefined, instanceToCopy),
     ) as T
   } else {
-    if (value instanceof Date) {
-      return new Date(value) as unknown as T
+    const handler = instanceToCopy.get(value.constructor)
+    if (handler) {
+      return handler(value) as T
     }
     const ret: { [key: string]: T } = {}
     for (const k in value) {
@@ -129,7 +136,7 @@ export function deepCopyObjectSimple<T extends JsonValue>(value: T, filterUndefi
       ret[k] =
         typeof v !== 'object' || v === null
           ? v
-          : (deepCopyObjectSimple(v as T, filterUndefined) as any)
+          : (deepCopyObjectSimple(v as T, filterUndefined, instanceToCopy) as any)
     }
     return ret as unknown as T
   }

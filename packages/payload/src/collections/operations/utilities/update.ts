@@ -123,7 +123,7 @@ export const updateDocument = async <
     collection: collectionConfig,
     context: req.context,
     depth: 0,
-    doc: deepCopyObjectSimple(docWithLocales),
+    doc: deepCopyObjectSimple(docWithLocales, false, payload.customFields.instanceToCopy),
     draft: draftArg,
     fallbackLocale: id ? null : fallbackLocale,
     global: null,

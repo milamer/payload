@@ -408,6 +408,14 @@ export class BasePayload {
   }
 
   crons: Cron[] = []
+  /**
+   * @description The custom fields registered with Payload
+   */
+  customFields!: {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    instanceToCopy: Map<Function, (value: any) => any>
+  }
+
   db!: DatabaseAdapter
 
   decrypt = decrypt
@@ -430,10 +438,10 @@ export class BasePayload {
     return duplicateLocal<TSlug, TSelect>(this, options)
   }
 
-  email!: InitializedEmailAdapter
-
   // TODO: re-implement or remove?
   // errorHandler: ErrorHandler
+
+  email!: InitializedEmailAdapter
 
   encrypt = encrypt
 
@@ -910,6 +918,17 @@ export class BasePayload {
       await this._initializeCrons()
     }
 
+    if (this.config.customFieldTypes) {
+      // construct
+      // desconstruct
+      // copy
+      // base type (will be the type of construct input and destruct output)
+      const instanceToCopy = new Map()
+      this.config.customFieldTypes.forEach(({ type, copy }) => {
+        instanceToCopy.set(type, copy)
+      })
+      this.customFields = { instanceToCopy }
+    }
     return this
   }
 

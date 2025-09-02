@@ -41,7 +41,7 @@ export const saveVersion = async ({
   let result: TypeWithID | undefined
   let createNewVersion = true
   const now = new Date().toISOString()
-  const versionData = deepCopyObjectSimple(doc)
+  const versionData = deepCopyObjectSimple(doc, false, payload.customFields.instanceToCopy)
   if (draft) {
     versionData._status = 'draft'
   }
@@ -149,7 +149,11 @@ export const saveVersion = async ({
       }
 
       if (publishSpecificLocale && snapshot) {
-        const snapshotData = deepCopyObjectSimple(snapshot)
+        const snapshotData = deepCopyObjectSimple(
+          snapshot,
+          false,
+          payload.customFields.instanceToCopy,
+        )
         if (snapshotData._id) {
           delete snapshotData._id
         }

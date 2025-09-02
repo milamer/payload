@@ -44,7 +44,7 @@ export const beforeChange = async <T extends JsonObject>({
   req,
   skipValidation,
 }: Args<T>): Promise<T> => {
-  const data = deepCopyObjectSimple(incomingData)
+  const data = deepCopyObjectSimple(incomingData, false, req.payload.customFields.instanceToCopy)
   const mergeLocaleActions: (() => Promise<void> | void)[] = []
   const errors: ValidationFieldError[] = []
 

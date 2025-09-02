@@ -153,7 +153,7 @@ export async function createLocal<
 
   return createOperation<TSlug, TSelect>({
     collection,
-    data: deepCopyObjectSimple(data), // Ensure mutation of data in create operation hooks doesn't affect the original data
+    data: deepCopyObjectSimple(data, false, payload.customFields.instanceToCopy), // Ensure mutation of data in create operation hooks doesn't affect the original data
     depth,
     disableTransaction,
     disableVerificationEmail,

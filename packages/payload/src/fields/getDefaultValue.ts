@@ -26,7 +26,7 @@ export const getDefaultValue = async ({
   }
 
   if (typeof defaultValue === 'object') {
-    return deepCopyObjectSimple(defaultValue)
+    return deepCopyObjectSimple(defaultValue, false, req.payload.customFields.instanceToCopy)
   }
 
   return defaultValue

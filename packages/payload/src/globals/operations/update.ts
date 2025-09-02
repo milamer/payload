@@ -117,7 +117,7 @@ export const updateOperation = async <
     let globalJSON: JsonObject = {}
 
     if (globalVersion && globalVersion.global) {
-      globalJSON = deepCopyObjectSimple(global)
+      globalJSON = deepCopyObjectSimple(global, false, payload.customFields.instanceToCopy)
 
       if (globalJSON._id) {
         delete globalJSON._id
@@ -128,7 +128,7 @@ export const updateOperation = async <
       collection: null,
       context: req.context,
       depth: 0,
-      doc: deepCopyObjectSimple(globalJSON),
+      doc: deepCopyObjectSimple(globalJSON, false, payload.customFields.instanceToCopy),
       draft: draftArg!,
       fallbackLocale: fallbackLocale!,
       global: globalConfig,

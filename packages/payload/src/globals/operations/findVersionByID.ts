@@ -98,7 +98,7 @@ export const findVersionByIDOperation = async <T extends TypeWithVersion<T> = an
     }
 
     // Clone the result - it may have come back memoized
-    let result: any = deepCopyObjectSimple(results[0])
+    let result: any = deepCopyObjectSimple(results[0], false, payload.customFields.instanceToCopy)
 
     if (!result.version) {
       result.version = {}

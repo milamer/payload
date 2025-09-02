@@ -121,7 +121,7 @@ export async function updateGlobalLocal<
 
   return updateOperation<TSlug, TSelect>({
     slug: globalSlug as string,
-    data: deepCopyObjectSimple(data), // Ensure mutation of data in create operation hooks doesn't affect the original data
+    data: deepCopyObjectSimple(data, false, payload.customFields.instanceToCopy), // Ensure mutation of data in create operation hooks doesn't affect the original data
     depth,
     draft,
     globalConfig,

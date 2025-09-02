@@ -201,7 +201,7 @@ export const updateByIDOperation = async <
       autosave,
       collectionConfig,
       config,
-      data: deepCopyObjectSimple(newFileData),
+      data: deepCopyObjectSimple(newFileData, false, payload.customFields.instanceToCopy),
       depth: depth!,
       docWithLocales,
       draftArg,

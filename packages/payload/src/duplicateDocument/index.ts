@@ -93,7 +93,11 @@ export const getDuplicateDocumentData = async ({
     collection: collectionConfig,
     context: req.context,
     depth: 0,
-    doc: deepCopyObjectSimple(duplicatedFromDocWithLocales),
+    doc: deepCopyObjectSimple(
+      duplicatedFromDocWithLocales,
+      false,
+      payload.customFields.instanceToCopy,
+    ),
     draft: draftArg!,
     fallbackLocale: null,
     global: null,

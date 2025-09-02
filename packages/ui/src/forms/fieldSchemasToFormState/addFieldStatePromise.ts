@@ -189,10 +189,15 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
     fieldPermissions =
       parentPermissions === true
         ? parentPermissions
-        : deepCopyObjectSimple(parentPermissions?.[field.name])
+        : deepCopyObjectSimple(
+            parentPermissions?.[field.name],
+            false,
+            payload.customFields.instanceToCopy,
+          )
 
     let hasPermission: boolean =
-      fieldPermissions === true || deepCopyObjectSimple(fieldPermissions?.read)
+      fieldPermissions === true ||
+      deepCopyObjectSimple(fieldPermissions?.read, false, payload.customFields.instanceToCopy)
 
     if (typeof field?.access?.read === 'function') {
       hasPermission = await field.access.read({

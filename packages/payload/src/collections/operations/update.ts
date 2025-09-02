@@ -244,7 +244,7 @@ export const updateOperation = async <
           autosave: false,
           collectionConfig,
           config,
-          data: deepCopyObjectSimple(data),
+          data: deepCopyObjectSimple(data, false, payload.customFields.instanceToCopy),
           depth: depth!,
           docWithLocales,
           draftArg,
